@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+
+{% block content %}
+
+
+
+	<p class="lead text-center"> Inventory for <a href="{{product.get_absolute_url}}" style="text-decoration:none;">{{product.title}}</a></p>
+
+
+<!-- **********************VARIATIONS***************************** -->
+	
+	<br/>
+	<p class="lead text-center">Variations</p>
+	<p class="lead text-center" style="color:red;">{{formset_error}}</p>
+	<hr/>
+	<form method="post" action="" > {% csrf_token %}
+	
+		{{formset_variation.management_form}}
+
+		{% for form in formset_variation %}
+		<div class="row">
+		<div class="col-md-4">
+		</div>
+
+		<div class="col-md-4">
+		
+		<table class="table table-bordered table-striped">
+
+		{{form|crispy}}
+		</table>
+		
+		</div>
+		<div class="col-md-4">
+		</div>
+
+		</div>
+		<hr/>
+
+		{% endfor %}
+	
+
+		
+
+		<div class="row">
+		<div class="col-md-4"></div>
+		<div class="col-md-4">
+		<input type="submit" value="Update" class="btn btn-block btn-primary">
+		<br/>
+		</div>
+
+	</form> 
+
+	<!-- <form method="post" action="" > {% csrf_token %}
+	{{formset_variation}}
+
+	<input type="submit" value="Update" class="btn btn-block btn-primary">
+	</form> -->
+{% endblock %}

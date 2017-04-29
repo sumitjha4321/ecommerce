@@ -1,0 +1,14 @@
+<form method="POST" action=""> {%csrf_token%}
+
+<!-- {% if non_form_errors %} 
+{{non_form_errors}}
+{% endif %} -->
+
+<!-- {{form.as_p}} -->
+{{form.management_form}}
+{% for each in form %}
+{{each}}
+{% endfor %}
+<input type="submit" value="Submit">
+
+</form>

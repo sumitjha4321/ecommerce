@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% block content %}
+
+
+
+
+<!-- manually rendering form fields -->
+
+<!-- <form method="POST" action=".">{% csrf_token %}
+{% for field in form %}
+
+
+{% if field.errors %}
+<ol>
+{% for error in field.errors %}
+<li><strong>{{ error|escape }}</strong></li>
+{% endfor %}
+</ol>
+{% endif %}
+
+{{field.errors}} 
+{{field.label_tag}}
+{{field}}
+
+{% endfor%}
+
+<input type="submit" value="Continue as Guest" class="btn btn-primary form-control">
+
+</form>
+ -->
+
+
+
+
+{% if  not user_can_continue %}
+
+<div class="row">
+
+<div class="col-md-6">
+<p class="lead text-center">	Continue as Guest </p>
+
+<form method="POST" action=".">{% csrf_token %}
+
+{{form|crispy}}
+
+<input type="submit" value="Continue as Guest" class="btn btn-primary form-control">
+
+
+
+
+</form>
+
+</div>
+<div class="col-md-6">
+<form method="POST" action="{% url 'auth_login'%}">{% csrf_token %}
+<p class="lead text-center">	Login to Continue </p>
+
+{{login_form|crispy}}
+<input type="hidden" name="next" value="{{next_url}}">
+<input type="submit" value="Login" class="btn btn-primary form-control"/>
+<br/>
+<br/>
+
+<p class="text-center">{% trans "Forgot password" %}? <a href="{% url 'auth_password_reset' %}">{% trans "Reset it" %}</a>!</p>
+<p class="text-center">{% trans "Not member" %}? <a href="{% url 'registration_register' %}">{% trans "Register" %}</a>!</p>
+</div>
+</div>
+
+
+
+{% else %} 
+
+<div class="col-md-4 col-md-offset-4 text-center">
+<p class="lead"> Your Order(s) </p>
+<table class="table">
+
+	<tr><td> Item(s) count: {{order.cart.cartitem_set.count}}</td></tr>
+	<tr><td>
+	
+		{% for item in order.cart.cartitem_set.all %}
+			<!-- <li> {{item.items.product.title}} {{ item.items.title}} </li> -->
+			 <b>{{item.get_title}}</b>
+			 <br/>
+
+		{% endfor %}
+	
+
+
+
+	</td></tr>
+
+
+	<tr><td> Cart total: {{order.cart.total}}</td></tr>
+	<tr><td> Shipping total: {{order.shipping_total_price}}</td></tr>
+	<tr><td> Total: {{order.order_total}}</td></tr>
+
+</table>
+
+</div>
+
+<div class="col-md-4 col-md-offset-4 text-center">
+<p> <b>Billing Address</b> </p> 
+{{order.billing_address.get_address}} <!--  order has a foreignkey field named 'billing_address' -->
+<br/><br/>
+<p> <b>Shipping Address</b> </p> 
+{{order.shipping_address.get_address}}
+<br/>
+<br/>
+<a href="{% url 'create_address'%}" class="btn btn-primary"> Add a new address </a> 
+
+</span>
+
+
+
+
+
+
+</div>
+
+
+
+
+
+{% endif %}
+
+{% endblock %}

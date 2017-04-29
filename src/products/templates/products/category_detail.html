@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3> Available products under category  '{{object.title}}'</h3>
+
+<div class="row">
+
+{% for product in object.product_set.all %}
+	<div class="col-sm-4">
+
+    {% include "product_thumbnail.html" with product=product %}
+    </div>
+  
+
+
+   {% cycle '' '' '</div> <div class="row">'%} <!-- placed just before closing of "div class=row" -->
+ 											<!-- note that the no of cycle is relative to the col-sm-6 
+ 											persent right below the div class=row  -->
+ {% endfor %}
+
+</div>
+
+
+
+ 
+{% endblock %}

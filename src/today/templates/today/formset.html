@@ -1,0 +1,16 @@
+
+{% if non_form_errors %}
+<p class="label"> {{non_form_errors}} </p>
+{% endif %}
+
+
+<form method="post" action=""> {% csrf_token %}
+
+
+{{formset.as_p}}
+
+<input type="submit" value="submit" />
+
+</form>
+
+<input type="text" name="name" value="instance" />

@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+
+<script>
+{% block jquery %}
+
+	var price = $("#price").attr("price"); //when the page is loaded for the first time, we
+						///take the price and the sale price this way. because if there is no
+						//variation i.e dropdown, getting price by doing
+
+						//var price = $(".variation-drop-down option:selected").attr("data-price");
+						//would cause undefined. because there is no dropdown if the product is single. i.e 
+						//the product doesn't have any variation
+	var sale_price = $("#price").attr("sale-price");
+	
+	
+	if (sale_price != "None"){
+
+		// $("#price").html("<h3>" + sale_price + "  <small style = 'color:red;text-decoration:line-through' Original Price " + price + "</h3>")
+			var html_code = "<h3>" + sale_price + " <small class='og-price' > original price:" + price + " </small></h3>";
+			
+		$("#price").html(html_code);
+	}
+	else
+	{
+		$("#price").text(price);
+	}
+
+
+$(".variation-drop-down").change(function(){
+	
+	var price = $(".variation-drop-down option:selected").attr("data-price");
+	
+	
+	
+	var sale_price = $(".variation-drop-down option:selected").attr("data-sale-price");
+	
+	
+	if (sale_price != "None"){
+
+		// $("#price").html("<h3>" + sale_price + "  <small style = 'color:red;text-decoration:line-through' Original Price " + price + "</h3>")
+			var html_code = "<h3>" + sale_price + " <small class='og-price' > original price:" + price + " </small></h3>";
+			
+		$("#price").html(html_code);
+	}
+	else
+	{
+		$("#price").text(price);
+	}
+
+	});
+
+
+$("#add-to-cart-btn").click(function(event){
+	event.preventDefault();
+	var formData = $("#add-to-cart-form").serialize();
+	console.log(formData);
+	$.ajax({
+		type: "GET",
+		url: "{% url 'cartview' %}",
+		data : formData,
+		success : function(data){
+		
+			
+
+			showFlashMessage(data.message);
+			//this function is defined  inside custom.js
+			updateCartBadge();
+
+
+			
+			
+		},
+		error : function(response, error, another){
+			console.log(response);
+			console.log(error);
+			console.log(another);
+		}
+
+	});
+});
+
+
+
+{% endblock %}
+</script>
+
+
+
+
+
+<!-- **********************JQUERY ENDS HERE*************************************** -->
+
+
+{% block content %}
+
+
+<div class="row">
+
+<div class="col-sm-8">
+
+<h2>{{ object.title }}</h2>
+
+					<!-- {% if object.productimage_set.count > 0 %}
+					<div>
+
+
+					{% for img in object.productimage_set.all %}
+
+
+					<img src="{{img.image.url}}"/>
+
+					{% endfor %}
+
+					</div>
+
+					{% endif %} -->
+
+
+{% if object.get_image_url %}
+<div class="row">
+<div class="col-sm-1">
+</div>
+<div class="col-sm-8">
+
+<img src="{{object.get_image_url}}" class="img-responsive" />
+</div>
+</div>
+
+{% endif %}
+
+
+
+
+</div>
+
+<div class="col-sm-4">
+{% if object.variation_set.first.sale_price %}
+<h3 id="price" price = "{{object.variation_set.first.price}}" sale-price="{{object.variation_set.first.sale_price}}">{{object.variation_set.first.sale_price}} <small class="og-price"> original price: {{object.price}} </small> </h3>
+
+{% else %}
+
+<h3 id="price" price = "{{object.variation_set.first.price}}"  sale-price="{{object.variation_set.first.sale_price}}">{{object.price}}</h3>
+{% endif %}
+
+
+<form id="add-to-cart-form" method="GET" action="{% url 'cartview' %}"> 
+
+{% if object.variation_set.count > 1 %}
+
+			<select class="form-control variation-drop-down" name="item_id"> 
+			{% for vari_obj in object.variation_set.all %}
+
+
+			<option data-sale-price = "{{vari_obj.sale_price}}" data-price = "{{vari_obj.price}}" value="{{vari_obj.id}}">{{vari_obj}}</option>
+
+
+
+			{% endfor %}
+
+
+			</select>
+{% else %}
+<input type="hidden" value="{{object.variation_set.first.id}}" name="item_id"/>
+
+{% endif %}
+
+<br/>
+<input type="number" value="1" class="form-control" name="quantity">
+<br/>
+<input id="add-to-cart-btn" type="submit" value="Add to Cart" class="btn btn-primary">
+
+</form>
+<hr/>
+Share<br/>
+
+<a href="https://www.facebook.com/sharer/sharer.php?u={{request.build_absolute_uri}}">
+	
+	<img src="{% static 'img/Facebook_icon.svg' %}" class="facebook-share">
+
+</a>
+<hr/>
+<div>
+<a href="{{object.get_absolute_url_variation}}">Manage Inventory</a>
+
+
+</div>
+<hr/>
+<p class="lead"> Related Products </p>
+
+
+<div class="row">
+
+{% for product in related %}
+	<div class="col-sm-4">
+
+    {% include "product_thumbnail.html" with product=product price=True%}
+    </div>
+  
+
+
+   {% cycle '' '' '</div> <div class="row">'%} <!-- placed just before closing of "div class=row" -->
+ 											<!-- note that the no of cycle is relative to the col-sm-6 
+ 											persent right below the div class=row  -->
+ {% endfor %}
+
+</div>
+</div>
+
+</div>
+<hr/>
+
+
+
+<p class="lead"> Top Reviews </p>
+
+
+
+
+{% for comment in comments %}
+<div class="row">
+
+<div class="col-md-2"> 
+{{comment.username}}<br/>
+{{comment.rating}} / 5.0 <br/>
+{{comment.timestamp}}
+
+
+</div>
+<div class="col-md-6">
+<strong>{{comment.subject}}</strong>
+<br/>
+
+{{comment.text}}
+
+</div>
+<div class="col-md-4"></div>
+
+</div>
+
+<div class="row">
+<div class="col-md-8"><hr/></div>
+<div class="col-md-4"></div>
+</div>
+
+
+
+{% endfor %}
+<hr/>
+
+<p class="lead text-center">Your review</p>
+	<p class="lead text-center" style="color:red;">{{formset_error}}</p>
+	<hr/>
+	<form method="post" action="" > {% csrf_token %}
+	
+		{{new_comment_form.management_form}}
+
+		{% for form in new_comment_form %}
+		<div class="row">
+		
+		<div class="col-md-4">
+		
+		<table class="table table-bordered table-striped">
+
+		{{form|crispy}}
+		</table>
+		</div>
+		</div>
+	
+
+		{% endfor %}
+		<div class="row">
+		
+		<div class="col-md-4">
+
+		<input type="submit" value="Post" class="btn btn-block btn-primary">
+		</div>
+		</div>
+
+	</form> 
+	<br/>
+	<br/>
+	<br/>
+	<br/>
+	<br/>
+
+
+
+{% endblock %}
+
+
+

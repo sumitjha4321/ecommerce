@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+
+<script>
+	{% block jquery %}
+
+	 $(".cart-qty").change(function(){
+	//	$(this).next(".cart-update-btn").fadeIn();
+	// 	event.preventDefault();
+
+		var item_id = $(this).prev("input[type='hidden']").val();
+		var quantity = $(this).val();
+		// var price = $(this).next("input[type='hidden']").val();
+		
+		// var new_line_item_total = (quantity)*(price) + 0.00
+
+		
+		
+
+		var data = {
+			item_id : item_id,
+			quantity : quantity,
+ 		}
+ 		
+		
+		$.ajax({
+			type: "GET",
+			url: "{% url 'cartview' %}",
+			data : data,
+			success : function(data){
+				// console.log(data);  #'data' returned as "JsonResponse" from views.py
+			
+				
+				// $(this).next("td").text(new_line_item_total)
+				$("#line-item-total-"+item_id).text(data.line_item_total);
+				$("#subtotal").text(data.subtotal);
+				$("#tax_total").text(data.tax_total);
+				$("#total").text(data.total);
+				showFlashMessage(data.message);
+				
+				updateCartBadge();
+
+				
+
+			},
+			error : function(response, error){
+				console.log(response);
+				console.log(error);
+		
+			}
+
+		});
+	});
+	 		//JUST TO SHOW HOW TO DO THIS..THIS WORKS.
+	 		//BUT WE REMOVED THIS BECAUSE AJAX WON'T RELOAD THE PAGE, 
+	 		//HENCE IF WE REMOVE THE ITEM, IT WILL STAY THERE AND WILL 
+	 		//DISAPPEAR ONLY IF THE PAGE IS RELOADED.
+
+	 		//NOW WHY DOES THE ITEM GETS ACTUALLY REMOVED IF WE MANUALLY REMOVE IT ?
+	 		//THIS IS BECAUSE WHEN WE MANUALLY REMOVE THE ITEM, THE CONTEXT DATA IS AGAIN 
+	 		//RECEIVED FROM THE DATABASE AND HENCE THE WE DON'T SEE THE ITEM.
+
+
+	 		//BULL SHIT..IT WORKS FINE..YOU JUST NEED TO FADEOUT THE HTML APPROPRIATELY.
+	 		//IF THE REQUEST IS NOT AJAX, THEN WE RENDER THE WEBPAGE AGAIN AND HENCE THE DATA ARE RE-LOADED
+	 		//FROM THE DATABASE...THIS IS THE WAY IT WORKS WHEN THE REQUEST IS NOT AJAX..
+	 		//IN CASE YOU AJAX, YOU HIDE THE HTML ELEMENT ACCORDINGLY.
+
+	 $(".delete-from-cart-btn").click(function(event){ //#NOTE IF YOU WANT TO ADD MULTPLE LISTENER, USE CLASS!!
+	 	var item_id = $(this).attr("value");
+	 	var temp = $(this).prev("input[type='hidden']").attr("value");
+	 	
+	 	event.preventDefault();
+	 	var delete_item="True"
+	 	var data = {
+	 		item_id : item_id,
+	 		delete : delete_item,
+	 	}
+	 	$.ajax({
+	 		type : "GET",
+
+
+	 		url : "{% url 'cartview' %}",
+	 		data :data,
+	 		success : function(data){
+	 			showFlashMessage(data.message);
+	 			
+	 			if (data.items_remaining_in_cart == 0)
+	 			{
+	 				$("table").fadeOut();
+	 				$("body").append("{% include 'carts/empty.html'%}");
+	 			}
+	 			
+
+	 		
+	 			
+	 			$("#tr-"+temp).fadeOut();
+	 			// $("#cart-count-badge").text(data.items_remaining_in_cart);
+	 			updateCartBadge();
+	 			$("#subtotal").text(data.subtotal);
+				$("#tax_total").text(data.tax_total);
+				$("#total").text(data.total);
+	 			
+	 			
+	 			
+
+	 		}
+
+	 	});
+
+
+	 });
+
+	
+
+	{% endblock %}
+</script>
+
+{% block content %}
+
+{% if object.cartitem_set.count < 1 %}
+
+{% include 'carts/empty.html' %}
+
+{% else %}
+
+<div class="col-md-12" >
+<table class="table table-bordered table-hover"> 
+
+<tr>
+<th> Item </th>
+<th> Variation </th>
+<th> Quantity </th>
+<th> Price </th>
+<th> Remove ? </th>
+</tr>
+
+<!-- [VVI] : object is an instance of Cart model -->
+
+{% for item in object.cartitem_set.all %}  
+
+<tr id="tr-{{forloop.counter}}">
+<td>
+<div class="row">
+<div class="col-xs-0.5"></div>
+<div class="col-xs-3">
+{% if item.items.product.get_image_url %}
+<a href="{{item.items.product.get_absolute_url}}">
+<img src="{{item.items.product.get_image_url}}" class="cart-image">
+</a>
+{% endif %}
+</div>
+<div class="col-xs-7">
+<a href="{{item.items.product.get_absolute_url}}">
+{{item.items.product}}
+</a>
+</div>
+</div>
+</td>
+<td>{{item}}</td>
+<td> 
+
+<form action="{% url 'cartview'%}" method="GET">
+<input type="hidden" value="{{item.items.id}}" name="item_id">
+<input type="number" value="{{item.quantity}}" class="cart-qty form-control" name="quantity" min="1"/> 
+
+
+
+
+
+<input type="submit" class="btn btn-primary cart-update-btn" value="Update" style="display:none;">
+</form>
+
+</td>
+<td id="line-item-total-{{item.items.id}}"> {{item.line_item_total}} </td>
+<td> 
+<form>
+<input type="hidden" value="{{forloop.counter}}"/>
+<a class="delete-from-cart-btn" href="{{item.remove}}" value="{{item.items.id}}">
+
+<img src="{% static 'img/trash.png' %}" class="facebook-share">
+
+</a>
+</form> 
+</td>
+
+
+
+
+
+</tr>
+
+
+{% endfor %}
+<tr>
+<td colspan="5" class="text-right" >
+ <h4> 
+Subtotal: <span id="subtotal" > {{object.subtotal}} </span>
+</h4>
+</td>
+</tr>
+
+<tr>
+<td colspan="5" class="text-right" >
+<h5>
+Estimated Tax: <span id="tax_total" > {{object.tax_total}} </span>
+</h5>
+</td>
+</tr>
+<tr>
+<td colspan="5" class="text-right" >
+<h4>
+Total: <span id="total" > {{object.total}} </span>
+</h4>
+</td>
+</tr>
+
+<tr>
+<td colspan="5" class="text-right">
+
+<a href="{% url 'checkout' %}" class="btn btn-success"> Checkout </a>
+</td>
+
+</tr>
+
+</table>
+</div>
+
+{% endif %}
+
+{% endblock %}

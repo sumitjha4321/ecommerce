@@ -1,0 +1,37 @@
+{% load staticfiles %}
+<!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- // <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script> -->
+     <script src="{% static 'js/jquery.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="{% static 'js/ie10-viewport-bug-workaround.js' %}"></script>
+    <script src="{% static 'js/custom.js' %}"></script>
+<script type="text/javascript">
+	
+
+	
+
+		
+function updateCartBadge()
+		    	{
+		    		$.ajax({
+		    			type : "GET",
+		    			url : "{% url 'cartcountview' %}",
+		    			
+
+		    			//data : data,
+		    			success : function(data){
+		    				$("#cart-count-badge").text(data.count);
+		    			}
+		    		})
+		    	}
+		    	
+		$(document).ready(function(){
+			
+			updateCartBadge();
+
+		});
+
+</script>

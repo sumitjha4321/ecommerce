@@ -1,0 +1,76 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    
+
+    <title>{% block head_title %}eCommerce{% endblock %}</title>
+
+    {% include 'head_css.html' %}
+
+      <style>
+      {% block style %}{% endblock %}
+      </style>
+
+
+
+  </head>
+
+  <body>
+
+  {% include 'navbar.html' %}
+
+
+  {% if messages %}
+  <div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+  <ul class="messages">
+     {% for message in messages %}
+     
+
+     <p class="inventory-update-message {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</p>
+     {% endfor %}
+    </ul>
+    </div>
+    <div class="col-sm-2"></div>
+ </div>
+<br/>
+
+{% endif %}
+
+{% block jumbotron %}
+          
+            {% endblock %}
+    <div class="container">
+            
+
+          
+            {% block content %}
+
+            {% endblock %}
+            
+              
+
+    </div> <!-- /container -->
+
+    {% include "javascript.html" %}
+
+    <script>
+        $(document).ready(function(){
+            {% block jquery %}
+            {% endblock %}
+        });
+
+    </script>
+    
+    
+  </body>
+</html>

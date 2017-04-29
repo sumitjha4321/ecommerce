@@ -1,0 +1,19 @@
+
+
+<div class="row">
+
+{% for item in product_list %}
+	<div class="col-sm-2">
+
+   {% include "product_thumbnail.html" with product=item %}
+    </div>
+  
+
+
+   {% cycle  '' '' '' ''  '' '</div> <div class="row">'%}
+
+
+ 
+ {% endfor %}
+ </div>
+ 

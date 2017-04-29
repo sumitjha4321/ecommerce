@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="row">
+
+{% for product in object_list %}
+	<div class="col-sm-4">
+
+    <div class="thumbnail text-center">
+    <h5><a href="{{product.get_absolute_url}}">{{product.title}}</a></h5>
+      
+		{% if product.get_image_url %}
+		<img src="{{product.get_image_url}}" />
+		{% endif %}
+      
+    </div>
+    </div>
+  
+
+
+   {% cycle '' '' '</div> <div class="row">'%} <!-- placed just before closing of "div class=row" -->
+ 											<!-- note that the no of cycle is relative to the col-sm-6 
+ 											persent right below the div class=row  -->
+ {% endfor %}
+
+</div>
+
+
+
+
+{% endblock %}

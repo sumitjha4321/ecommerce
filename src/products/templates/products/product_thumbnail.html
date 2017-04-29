@@ -1,0 +1,16 @@
+
+
+
+<div class="thumbnail text-center">
+    <h5><a href="{{product.get_absolute_url}}">{{product.title}}</a></h5>
+      
+		{% if product.get_image_url %}
+		<img src="{{product.get_image_url}}" />
+		{% endif %}
+
+		{% if price == True %}
+		
+		{{ product.variation_set.first.get_price_html }}
+		{% endif %}
+      
+    </div>

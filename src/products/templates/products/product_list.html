@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+{% include "products/products.html" with product_list=product_list%}
+
+			<!-- * from home.html, we are passing the template context variable as "product_list=products"..
+			  so, here we do "product_list=product_list"
+			* And if this page was called directly from 127.0.0.1:8000/products, the "product_list" variable...
+			  is already known. -->
+  
+ 
+
+ {% endblock %}
+ 
+ 
